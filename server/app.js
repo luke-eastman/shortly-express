@@ -102,10 +102,11 @@ app.post('/login',
       username: req.body.username
     })
       .then(user => {
-        throw user;
-      })
-      .error (error => {
-        res.redirect(500, '/login');
+        if (user) {
+          throw user;
+        } else {
+          res.redirect(500, '/login');
+        }
       })
       .catch (user => {
         if (models.Users.compare(req.body.password, user.password, user.salt)) {

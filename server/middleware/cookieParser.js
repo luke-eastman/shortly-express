@@ -9,7 +9,7 @@ const parseCookies = (req, res, next) => {
     }
   }
   req.cookies = outputObj;
-  next();
+  next(null, outputObj);
 };
 
 module.exports = parseCookies;

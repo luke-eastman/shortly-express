@@ -81,19 +81,38 @@ app.post('/links',
 
 app.post('/signup',
   (req, res, next) => {
+    // var username = req.body.username;
+    // var password = req.body.password;
+
+    // return models.Users.get({username})
+    //   .then(user => {
+    //     if (user) {
+    //       throw user;
+    //     }
+    //     return models.Users.create({ username, password});
+    //   })
+    //   .then(results => {
+    //     return models.Sessions.update({hash: req.session.hash}, {userId: results.id});
+    //   })
+    //   .then((user) => {
+    //     console.log('PAUSE HERE');
+    //     res.redirect(200, '/');
+    //   })
+    //   .catch((user => {
+    //     res.redirect('/signup');
+    //   }));
+
     // TODO: error handling
     return models.Users.create({
       username: req.body.username,
       password: req.body.password
     })
-      .then(newUser => {
-        throw newUser;
+      .then((user) => {
+        models.Sessions.update({hash: req.session.hash}, {userId: user.insertId});
+        res.redirect(200, '/');
       })
       .error(error => {
         res.redirect('/signup');
-      })
-      .catch((error) => {
-        res.redirect(200, '/');
       });
   });
 
@@ -111,6 +130,7 @@ app.post('/login',
       })
       .catch (user => {
         if (models.Users.compare(req.body.password, user.password, user.salt)) {
+          models.Sessions.update({hash: req.session.hash}, {userId: user.id});
           res.redirect(200, '/');
         } else {
           res.redirect(500, '/login');
